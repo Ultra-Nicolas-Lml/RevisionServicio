@@ -4,7 +4,7 @@ import subprocess
 from datetime import datetime
 
 servicio = 'pokeapi.co'
-CSV_FILE = "/home/ubuntu/Scripts/Logs/Log.csv"
+CSV_FILE = "Log.csv"
 
 def ping_ip(servicio):
     try:
