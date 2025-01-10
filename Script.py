@@ -42,7 +42,7 @@ def log_to_csv(status, time_ms):
     }
 
     # Guardar en JSON
-    with open("data.json", mode="w") as file:
+    with open("Log.json", mode="w") as file:
         json.dump(data, file, indent=4)    
 
 log_to_csv(status, time_ms)
