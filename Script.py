@@ -22,13 +22,27 @@ def ping_ip(servicio):
     
 status, time_ms = ping_ip(servicio)
 
+import json
+
 def log_to_csv(status, time_ms):
-    # Crear archivo CSV si no existe
-    file_exists = os.path.isfile(CSV_FILE)
-    with open(CSV_FILE, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        if not file_exists:
-            writer.writerow(["Timestamp", "IP", "Status", "Response Time (ms)"])
-        writer.writerow([datetime.now().isoformat(), servicio, status, time_ms])
+    
+    data = {
+        "timestamp": datetime.now().isoformat(),
+        "service": "VALRISK.PP.OP.T03-S06-001-RAC001.Val-Datos-Integridad.RegitrosConAforoEnCero.v1.2.0",
+        "level": "VALRISK.PP.OP.T03-S06-001-RAC001.Val-Datos-Integridad.RegitrosConAforoEnCero.v1.2.0",
+        "message": "Este es una prueba de lo que deberia de contener el mensaje",
+        "transactionId": "Transaccion",
+        "detalles": 
+            {
+            "time": time_ms,
+            "input": "<Entradas>",
+            "output": status,
+            "error": "<ErrorDetalles>"
+            }
+    }
+
+    # Guardar en JSON
+    with open("data.json", mode="w") as file:
+        json.dump(data, file, indent=4)    
 
 log_to_csv(status, time_ms)
