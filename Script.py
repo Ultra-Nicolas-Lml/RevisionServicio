@@ -1,11 +1,7 @@
 import subprocess
 from datetime import datetime
 import json
-
-# Ruta del archivo JSON
-with open("Parametros.json", 'r') as archivo:
-    Param = json.load(archivo)
-servicios = Param['Parametros']['Hosts']
+import sys
 
 # Funcion que realiza la prueba ping
 def ping_ip(servicio):
@@ -47,9 +43,9 @@ def log_to_csv(host,status, time_ms):
 Resultados = {}
 Resultados['Logs'] = []
 
-for servicio in servicios:
-    status, time_ms = ping_ip(servicio)
-    Resultados['Logs'].append(log_to_csv(servicio,status, time_ms))
+servicio = sys.argv[1]
+status, time_ms = ping_ip(servicio)
+Resultados['Logs'].append(log_to_csv(servicio,status, time_ms))
 
 # Guardar en JSON
 with open("Log.json", mode="w") as file:
