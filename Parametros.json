@@ -1,9 +1,9 @@
 {
     "Parametros": {
-        "Hosts": [
-            "pokeapi.co",
-            "facebook.com",
-            "google.com"
+        "Sentencias": [
+            "ping facebook.com -c5",
+            "ping google.com -c5",
+            "ping gfdserg.com -c5"
         ]
     }
 }
