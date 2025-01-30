@@ -1,9 +1,12 @@
 {
     "Parametros": {
-        "Sentencias": [
-            "ping facebook.com -c5",
-            "ping google.com -c5",
-            "ping gfdserg.com -c5"
-        ]
+        "Sentencias": {
+            "nassf" : "ls -l /nassf/ | grep -c webuser",
+            "nassf2" : "ls -l /nassf2/ | grep -c webuser",
+            "nasqro" : "ls -l /nasqro/ | grep -c webuser",
+            "nasreforma": "ls -l /nasreforma/ | grep -c webuser"
+        }
     }
 }
+
+
