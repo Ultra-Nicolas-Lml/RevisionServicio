@@ -8,7 +8,7 @@ def execute_conteo_command(command):
     try:
         # Ejecutar el comando SSH
         result = subprocess.run(
-            command, shell=True, capture_output=True, text=True, timeout=30
+            command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=30
         )
         output = result.stdout
 
