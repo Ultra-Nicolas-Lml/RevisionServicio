@@ -1,12 +1,11 @@
 {
     "Parametros": {
-        "Sentencias": {
-            "nassf" : "ls -l /nassf/ | grep -c webuser",
-            "nassf2" : "ls -l /nassf2/ | grep -c webuser",
-            "nasqro" : "ls -l /nasqro/ | grep -c webuser",
-            "nasreforma": "ls -l /nasreforma/ | grep -c webuser"
-        }
+        "BeginCommand": "diff -qr ",
+        "Carpetas": [
+            "nassf",
+            "nassf2",
+            "nasqro",
+            "nasreforma"
+        ]
     }
 }
-
-

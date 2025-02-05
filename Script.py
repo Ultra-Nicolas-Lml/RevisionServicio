@@ -1,97 +1,80 @@
 import subprocess
-import re
 import json
 from datetime import datetime
 
-#Ejecucion de la linea de comandos
-def execute_conteo_command(command):
+def compare_folders(command):
     try:
-        # Ejecutar el comando SSH
+        # Ejecuta el comando diff
         result = subprocess.run(
             command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=30
         )
-        output = result.stdout
+        output = result.stdout.strip()  # Elimina espacios innecesarios
+        error_output = result.stderr.strip()  # Captura errores si los hay
 
-        # Verificar si hay errores en stderr
-        if result.returncode != 0:
+        # Verificar si hay errores en stderr que indiquen fallo real
+        if result.returncode != 0 and error_output:
             Detalles = {
                 "estatus": "CommandFailed",
-                "comando" : command,
-                "mensaje": result.stderr.strip(),
-                "timestamp": datetime.now().isoformat(),
-                "conteo" : None
+                "command": command,
+                "mensaje": error_output,
+                "timestamp": datetime.now().isoformat()
             }
+            Detalles['diferencias'] = None
             return Detalles
 
-        # Analizar la salida del ping
+        # Si `returncode == 1` pero no hay error en stderr, significa que hay diferencias
         Detalles = {
-            "estatus": "Succsess",
-            "comando" : command,
-            "mensaje": 'Se completo la ejecucion de la setencia',
-            "timestamp": datetime.now().isoformat(),
-            "conteo": int(result.stdout.strip())
-            }
+            "estatus": "Success",
+            "command": command,
+            "mensaje": "Ejecución completada correctamente.",
+            "timestamp": datetime.now().isoformat()
+        }
+        Detalles['diferencias'] = output.splitlines() if output else []
         return Detalles
 
     except subprocess.TimeoutExpired:
         Detalles = {
             "estatus": "TimeoutExpired",
-            "comando" : command,
+            "command": command,
             "mensaje": "El comando tardó demasiado en ejecutarse.",
-            "timestamp": datetime.now().isoformat(),
-            "conteo" : None
+            "timestamp": datetime.now().isoformat()
         }
+        Detalles['diferencias'] = None        
         return Detalles
     
     except Exception as e:
         Detalles = {
             "estatus": "ExecutionError",
-            "comando" : command,
-            "message": str(e),
-            "timestamp": datetime.now().isoformat(),
-            "conteo" : None
-        }         
+            "command": command,
+            "mensaje": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+        Detalles['diferencias'] = None        
         return Detalles
 
-#################################################################################
+############################################################################################################3
 # Ruta del archivo JSON
 with open("Parametros.json", 'r') as archivo:
     Param = json.load(archivo)
-Sentencias = Param['Parametros']['Sentencias']
+BeginCommand = Param['Parametros']['BeginCommand']
+Carpetas = Param['Parametros']['Carpetas']
+
+CombCarp = []
+for i in range(len(Carpetas)):
+    for j in range(i+1,(len(Carpetas))):
+        CombCarp.append(Carpetas[i]+" "+Carpetas[j])
 
 # Creo un json para guardar los resultados
 FormatLog = {
     "timeID": datetime.now().isoformat(),
     "service": "VALRISK.PP.OP.T03-S06-001-RAC001.Val-Datos-Integridad.RegitrosConAforoEnCero.v1.2.0",
     "level": "INFO",
-    "resconteos": {}
+    "resdiffs": {}
 }
 
-# Cuento los archivos de todas las carpetas
-flag = True
-cnts = []
-for key in Sentencias.keys():
-    # Ejecutar el ping y capturar las métricas
-    result = execute_conteo_command(Sentencias[key])
-    FormatLog['resconteos'][key] = result
+for comb in CombCarp:
+    resultado = compare_folders(BeginCommand + " " + comb)
+    FormatLog["resdiffs"][comb] = resultado
     
-    # Reviso si hay alguna consulta fallida
-    if result['estatus'] != 'Succsess':
-        FormatLog['estatus'] = "Fail"
-        FormatLog['mensaje'] =   "Hubo un fallo en el conteo de " + key
-        flag = False
-    else:
-        cnts.append(result['conteo'])
-
-# Reviso si todos los conteos se realizaron y si dan el mismo resultado
-if flag == True:
-    if len(set(cnts)) == 1:
-        FormatLog['estatus'] = "Success"
-        FormatLog['mensaje'] =  "Todas las carpetas tienen el mismo numero de archivos"
-    else:
-        FormatLog['estatus'] = "Diferencia"            
-        FormatLog['diferencias'] = "Hay diferencia en el conteo de archivos de las carpetas"    
-        
-# Guardar en JSON
-with open("Log.json", mode="w") as file:
-    json.dump(FormatLog, file, indent=4)      
+with open("resultado.json", "w") as archivo:
+    json.dump(FormatLog, archivo, indent=4)
